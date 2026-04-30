@@ -1,12 +1,18 @@
+from bd.connect import conectar_db
+from bd.setup import create_tables
 from pedido import NovoPedido, ListarPedidos, AtualizarStatus
 from verificacao_acesso import verificar_acesso
-from restaurante import produtos, entregadores,adicionar_produto, adicionar_atendente, adicionar_entregador, editar_produto, editar_entregador, editar_atendente,listar_produtos, listar_entregadores, listar_atendentes
+from restaurante import adicionar_produto_, adicionar_atendente, adicionar_entregador, editar_produto, editar_entregador, editar_atendente,listar_produtos, listar_entregadores, listar_atendentes,listar_clientes
+from funcionario import alterar_status_entrega,listar_pedidos_entregador
 from rich import print
+from rich.console import Console
+console = Console()
 
 
-clientes = []
-ListaPedidos = [] #listar pedidos
-Cancelados = {} # só pedidos cancelados
+
+conectar_db()
+create_tables()
+
 
 
 
@@ -39,6 +45,7 @@ if tipo_acesso == 'admin':
         print("7- Adicionar Atendente")
         print("8- Editar Atendente")
         print("9- Listar Atendentes")
+        print("10- Listar Clientes")
         print("0- Sair")
         print("")
         print("======================================")
@@ -49,7 +56,7 @@ if tipo_acesso == 'admin':
             print("======================================")
             print("          NOVO PRODUTO               ")
             print("======================================")
-            adicionar_produto()
+            adicionar_produto_()
         elif opçao == 2:
             print("======================================")
             print("         LISTAR PRODUTOS              ")
@@ -92,13 +99,17 @@ if tipo_acesso == 'admin':
             print("         LISTAR ATENDENTES            ")
             print("======================================")
             listar_atendentes()
-                    
+        elif opçao == 10:
+            print("======================================")
+            print("         LISTAR ATENDENTES            ")
+            print("======================================")
+            listar_clientes()
     
     
     
 # Acesso de Atendente    
 elif tipo_acesso == 'atendente':
-    print("Acesso de Atendente concedido.")
+    console.print("[green]Acesso de Atendente concedido.[/green]")
     
     opçao = None
     while opçao != 0 :
@@ -121,20 +132,20 @@ elif tipo_acesso == 'atendente':
             print("======================================")
             print("            NOVO PEDIDO               ")
             print("======================================")
-            NovoPedido(ListaPedidos=ListaPedidos, clientes=clientes, produtos=produtos, entregadores=entregadores)
+            NovoPedido()
 
         elif(opçao == 2):
             print("======================================")
             print("          LISTAR PEDIDOS              ")
             print("======================================")
-            ListarPedidos(ListaPedidos=ListaPedidos)
+            ListarPedidos()
         
 
         elif(opçao == 3):
             print("======================================")
             print("          ATUALIZAR STATUS            ")
             print("======================================")
-            AtualizarStatus(ListaPedidos=ListaPedidos)
+            AtualizarStatus()
 
         elif(opçao == 4):
             print("======================================")
@@ -151,13 +162,36 @@ elif tipo_acesso == 'atendente':
             
 # Acesso de Cliente            
 elif tipo_acesso == 'cliente':
-    print("Acesso de Cliente concedido.")
+    console.print("[green]Acesso de Cliente concedido.[/green]")
     
     
     
 # Acesso de Entregador    
 elif tipo_acesso == 'entregador':
-    print("Acesso de Entregador concedido.")
+    console.print("[green]Acesso de Entregador concedido.[/green]")
+
+    opcao = None
+    while opcao != 0:
+        print("======================================")
+        print("       BEM VINDO A FASTORDER  ")
+        print("======================================")
+        print("")
+        print("1- Listar Pedidos")
+        print("2- Alterar status pedido")
+
+        opçao = int(input("Escolha a ação que deseja realizar:"))
+
+        if(opçao == 1):
+            print("======================================")
+            print("            LISTAR PEDIDOS               ")
+            print("======================================")
+
+        elif(opçao == 2):
+            print("======================================")
+            print("          ALTERAR STATUS DE UM PEDIDO    ")
+            print("======================================")
+
+
 
 
     

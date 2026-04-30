@@ -1,5 +1,8 @@
 #Codigo em relação ao cliente
+from rich.console import Console
+from bd.clientes import adicionar_cliente
 
+console = Console()
 
 def cadastrar_cliente():
     nome = input("Digite o nome do cliente: ")
@@ -13,9 +16,15 @@ def cadastrar_cliente():
         "telefone": telefone,
         "endereco": endereco
     }
+    try:
+        adicionar_cliente(cliente=cliente)
+        console.print("[green]Cliente cadastrado com sucesso![/green]")
+        return cliente
     
-    print("Cliente cadastrado com sucesso!")
-    return cliente
+    except Exception as E:
+        console.print(f"[red]Cliente nao cadastrado : {E} [/red]")
+        return {}
+    
     
 
 

@@ -1,9 +1,34 @@
+from bd.pedidos import adicionar_pedido,atualizar_pedido,buscar_pedido,deletar_pedido,listar_pedidos,inserir_itens_pedido
+from bd.produtos import listar_produtos
+from bd.clientes import listar_clientes_banco,adicionar_cliente
+from bd.funcionarios import listar_funcionarios
 import time
 from cliente import cadastrar_cliente
+from rich.console import Console
+from rich.table import Table
 
-def NovoPedido(ListaPedidos:list, clientes:list, produtos:list, entregadores:list)->None:
-    id_pedido = len(ListaPedidos) + 1
-    pedido = {"id": id_pedido, "itens": [], "status" : "Em andamento", "cliente": None, "entregador": None, "valor_total": 0.00, "forma_pagamento": None, "data_hora": None}
+console = Console()
+
+ListaPedidos = listar_pedidos()
+produtos = listar_produtos()
+funcionarios = listar_funcionarios()
+clientes = listar_clientes_banco()
+entregadores = []
+for funcionario in funcionarios:
+    if funcionario['cargo'] == 'entregador':
+        entregadores.append(funcionario)
+
+
+def NovoPedido()->None:
+    pedido = {
+    "cliente_id": None,
+    "entregador_id": None,
+    "itens": [],
+    "valor_total": 0.0,
+    "status": "Em andamento",
+    "forma_pagamento": None,
+    "data_hora": None
+}
     loop = True
     while loop:
         cliente_encontrado = False
@@ -14,7 +39,7 @@ def NovoPedido(ListaPedidos:list, clientes:list, produtos:list, entregadores:lis
                     cliente = next((c for c in clientes if c["email"] == cliente_email), None)
                 
                 if cliente:
-                    pedido["cliente"] = cliente["nome"]
+                    pedido["cliente_id"] = cliente["id"]
                     endereco_loop = True
                     while endereco_loop:
                         escolha_endereco = input(f"endereço registrado: {cliente['endereco']}. para confirmar digite 0, para alterar digite 1:")
@@ -33,63 +58,107 @@ def NovoPedido(ListaPedidos:list, clientes:list, produtos:list, entregadores:lis
                     print("Cliente não encontrado. cadstre-o.")
                     cliente = cadastrar_cliente()  
                     
-        print("Produtos Disponíveis:")
+        table = Table(title="Produtos Disponíveis")
+
+        table.add_column("ID", justify="right")
+        table.add_column("Nome")
+        table.add_column("Preço", justify="right")
+        table.add_column("Descrição")
+
         for i, produto in enumerate(produtos):
-            print(f"{i} - {produto['nome']} - R$ {produto['preco']:.2f}")
-            print(f"   Descrição: {produto['descricao']}")
+            table.add_row(
+                str(i),
+                produto["nome"],
+                f"R$ {produto['preco']:.2f}",
+                produto["descricao"]
+            )
+
+        console.print(table)
         itens = input("Digite os números dos produtos que deseja adicionar ao pedido (separados por vírgula ou espaço): ")
         itens = itens.replace(",", " ").split()
         for item in itens:
             item = int(item)
             pedido["itens"].append({
-                "nome": produtos[item]["nome"], 
-                 "preco": produtos[item]["preco"]
-                 })
+                "produto_id": produtos[item]["id"],
+                "preco": produtos[item]["preco"]
+            })
             pedido["valor_total"] += produtos[item]["preco"]
         print(f"Valor total do pedido: R$ {pedido['valor_total']:.2f}")
         
+        table = Table(title="Entregadores")
+        table.add_column("ID", justify="right")
+        table.add_column("Nome")
+
         for i, entregador in enumerate(entregadores):
-            print(f"{i} - {entregador['nome']}")
+            table.add_row(str(i), entregador["nome"])
+
+        console.print(table)
         entregador_id = int(input("Digite o número do entregador para este pedido: "))
-        pedido["entregador"] = entregadores[entregador_id]["nome"]
+        pedido["entregador_id"] = entregadores[entregador_id]["id"]
         pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartão, Dinheiro, Pix): ")
         pedido["data_hora"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        ListaPedidos.append(pedido)
-        print(f"Pedido {id_pedido} criado com sucesso!")
+        try:
+            pedido_id = adicionar_pedido(pedido)  
+
+            inserir_itens_pedido(pedido_id, pedido["itens"])
+
+            console.print("[green]Pedido criado com sucesso![/green]")
+
+        except Exception as e:
+            console.print(e)
+        
         loop = False
                 
 
-def ListarPedidos(ListaPedidos:list)->None:
-    print("Pedidos em andamento:")
-    for pedido in ListaPedidos:
-        if pedido["status"] == "Em andamento":
-            print(f" ID: {pedido['id']} ---- Cliente: {pedido['cliente']} ---- Itens: {[item['nome'] for item in pedido['itens']]} ----  Entregador: {pedido['entregador']} ----  Valor Total: R$ {pedido['valor_total']:.2f}")
-    print("Pedidos finalizados:")
-    for pedido in ListaPedidos:
-        if pedido["status"] == "Finalizado":
-            print(f"ID: {pedido['id']}, Cliente: {pedido['cliente']}, Itens: {[item['nome'] for item in pedido['itens']]}, Entregador: {pedido['entregador']}")
-    print("Pedidos cancelados:")
-    for pedido in ListaPedidos:
-        if pedido["status"] == "Cancelado":
-            print(f"ID: {pedido['id']}, Cliente: {pedido['cliente']}, Itens: {[item['nome'] for item in pedido['itens']]}, Entregador: {pedido['entregador']}")
-    print("Pedidos em entrega:")
-    for pedido in ListaPedidos:
-        if pedido["status"] == "Em entrega":
-            print(f"ID: {pedido['id']}, Cliente: {pedido['cliente']}, Itens: {[item['nome'] for item in pedido['itens']]}, Entregador: {pedido['entregador']}")
-    print("\n\n\n\n\n\n\n\n\n")
+def ListarPedidos() -> None:
+    def criar_tabela(status):
+        table = Table(title=f"Pedidos - {status}")
+        table.add_column("ID", justify="right")
+        table.add_column("Cliente")
+        table.add_column("Itens")
+        table.add_column("Entregador")
+        table.add_column("Valor", justify="right")
+
+        for pedido in ListaPedidos:
+            if pedido["status"] == status:
+                itens = ", ".join(item["nome"] for item in pedido["itens"])
+                table.add_row(
+                    str(pedido["id"]),
+                    pedido["cliente"],
+                    itens,
+                    pedido["entregador"],
+                    f"R$ {pedido['valor_total']:.2f}"
+                )
+        return table
+
+    for status in ["Em andamento", "Em entrega", "Finalizado", "Cancelado"]:
+        console.print(criar_tabela(status))
         
-def AtualizarStatus(ListaPedidos:list)->None:
+def AtualizarStatus()->None:
     lista_ids = []
+    table = Table(title="Pedidos")
+
+    table.add_column("Index", justify="right")
+    table.add_column("ID")
+    table.add_column("Cliente")
+    table.add_column("Itens")
+    table.add_column("Entregador")
+    table.add_column("Valor")
+    table.add_column("Status")
+
+    lista_ids = []
+
     for i, pedido in enumerate(ListaPedidos):
-        print(f"{i} - ID: {pedido['id']} ---- Cliente: {pedido['cliente']} ---- Itens: {[item['nome'] for item in pedido['itens']]} ----  Entregador: {pedido['entregador']} ----  Valor Total: R$ {pedido['valor_total']:.2f} ---- Status: {pedido['status']}")
+        itens = ", ".join(item["nome"] for item in pedido["itens"])
+        table.add_row(
+            str(i),
+            str(pedido["id"]),
+            pedido["cliente"],
+            itens,
+            pedido["entregador"],
+            f"R$ {pedido['valor_total']:.2f}",
+            pedido["status"]
+        )
         lista_ids.append(i)
-    pedido_id = int(input("Digite o número do pedido para atualizar o status: "))
-    if pedido_id not in lista_ids:
-        print("ID de pedido inválido.")
-        return
-    novo_status = input("Digite o novo status para este pedido (Em andamento, Em entrega, Finalizado, Cancelado): ")
-    if novo_status in ["Em andamento", "Em entrega", "Finalizado", "Cancelado"]:
-        ListaPedidos[pedido_id]["status"] = novo_status
-        print(f"Status do pedido {ListaPedidos[pedido_id]['id']} atualizado para {novo_status}!")
-    else:
-        print("Status inválido. Status não atualizado.")
+
+    console.print(table)
