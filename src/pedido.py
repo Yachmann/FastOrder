@@ -2,79 +2,81 @@ from bd.pedidos import adicionar_pedido,atualizar_pedido,buscar_pedido,deletar_p
 from bd.produtos import listar_produtos
 from bd.clientes import listar_clientes_banco,adicionar_cliente
 from bd.funcionarios import listar_funcionarios
-import time
 from cliente import cadastrar_cliente
 from rich.console import Console
 from rich.table import Table
 
 console = Console()
 
-ListaPedidos = listar_pedidos()
-produtos = listar_produtos()
-funcionarios = listar_funcionarios()
-clientes = listar_clientes_banco()
-entregadores = []
-for funcionario in funcionarios:
-    if funcionario['cargo'] == 'entregador':
-        entregadores.append(funcionario)
-
-
 def NovoPedido()->None:
+    global produtos, clientes, entregadores
+    
+    produtos = listar_produtos()
+    clientes = listar_clientes_banco()
+    funcionarios = listar_funcionarios()
+    entregadores = [f for f in funcionarios if f['cargo'] == 'entregador']
+    
     pedido = {
-    "cliente_id": None,
-    "entregador_id": None,
-    "itens": [],
-    "valor_total": 0.0,
-    "status": "Em andamento",
-    "forma_pagamento": None,
-    "data_hora": None
-}
+        "cliente_id": None,
+        "entregador_id": None,
+        "itens": [],
+        "valor_total": 0.0,
+        "status": "Em andamento",
+        "forma_pagamento": None
+    }
     loop = True
     while loop:
         cliente_encontrado = False
         cliente = None    
         while not cliente_encontrado:
-                if not cliente:
-                    cliente_email = input("Digite o email do cliente para este pedido: ")
+            if not cliente:
+                cliente_email = input("Digite o email do cliente para este pedido: ")
+                if clientes:
                     cliente = next((c for c in clientes if c["email"] == cliente_email), None)
-                
-                if cliente:
-                    pedido["cliente_id"] = cliente["id"]
-                    endereco_loop = True
-                    while endereco_loop:
-                        escolha_endereco = input(f"endereço registrado: {cliente['endereco']}. para confirmar digite 0, para alterar digite 1:")
-                        if escolha_endereco == "1":
-                            novo_endereco = input("Digite o novo endereço do cliente: ")
-                            cliente["endereco"] = novo_endereco
-                            endereco_loop = False
-                        elif escolha_endereco != "0":
-                            print("Opção inválida")
-                        else:
-                            print("Endereço confirmado")
-                            endereco_loop = False
+            
+            if cliente:
+                pedido["cliente_id"] = cliente["id"]
+                endereco_loop = True
+                while endereco_loop:
+                    escolha_endereco = input(f"endereco registrado: {cliente['endereco']}. para confirmar digite 0, para alterar digite 1:")
+                    if escolha_endereco == "1":
+                        novo_endereco = input("Digite o novo endereco do cliente: ")
+                        cliente["endereco"] = novo_endereco
+                        endereco_loop = False
+                    elif escolha_endereco != "0":
+                        print("Opcao invalida")
+                    else:
+                        print("Endereco confirmado")
+                        endereco_loop = False
         
-                    cliente_encontrado = True
-                else:
-                    print("Cliente não encontrado. cadstre-o.")
-                    cliente = cadastrar_cliente()  
+                cliente_encontrado = True
+            else:
+                print("Cliente nao encontrado. cadastre-o.")
+                cliente = cadastrar_cliente()  
                     
-        table = Table(title="Produtos Disponíveis")
+        table = Table(title="Produtos Disponiveis", show_lines=True)
 
-        table.add_column("ID", justify="right")
-        table.add_column("Nome")
-        table.add_column("Preço", justify="right")
-        table.add_column("Descrição")
+        table.add_column("ID", justify="right", style="cyan")
+        table.add_column("Nome", style="green")
+        table.add_column("Preco", justify="right", style="yellow")
+        table.add_column("Descricao", style="white")
 
-        for i, produto in enumerate(produtos):
-            table.add_row(
-                str(i),
-                produto["nome"],
-                f"R$ {produto['preco']:.2f}",
-                produto["descricao"]
-            )
+        if not produtos:
+            console.print("[yellow]Nenhum produto cadastrado![/yellow]")
+        else:
+            for i, produto in enumerate(produtos):
+                table.add_row(
+                    str(i),
+                    produto.get("nome", "N/A"),
+                    f"R$ {produto.get('preco', 0):.2f}",
+                    produto.get("descricao", "N/A")
+                )
 
         console.print(table)
-        itens = input("Digite os números dos produtos que deseja adicionar ao pedido (separados por vírgula ou espaço): ")
+        
+        console.print(f"[dim]Total de produtos: {len(produtos)}[/dim]")
+        
+        itens = input("Digite os numeros dos produtos que deseja adicionar ao pedido (separados por espaco): ")
         itens = itens.replace(",", " ").split()
         for item in itens:
             item = int(item)
@@ -93,12 +95,11 @@ def NovoPedido()->None:
             table.add_row(str(i), entregador["nome"])
 
         console.print(table)
-        entregador_id = int(input("Digite o número do entregador para este pedido: "))
+        entregador_id = int(input("Digite o numero do entregador para este pedido: "))
         pedido["entregador_id"] = entregadores[entregador_id]["id"]
-        pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartão, Dinheiro, Pix): ")
-        pedido["data_hora"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartao, Dinheiro, Pix): ")
         try:
-            pedido_id = adicionar_pedido(pedido)  
+            pedido_id = adicionar_pedido(pedido)
 
             inserir_itens_pedido(pedido_id, pedido["itens"])
 
@@ -108,9 +109,10 @@ def NovoPedido()->None:
             console.print(e)
         
         loop = False
-                
 
 def ListarPedidos() -> None:
+    ListaPedidos = listar_pedidos()
+    
     def criar_tabela(status):
         table = Table(title=f"Pedidos - {status}")
         table.add_column("ID", justify="right")
@@ -120,14 +122,16 @@ def ListarPedidos() -> None:
         table.add_column("Valor", justify="right")
 
         for pedido in ListaPedidos:
-            if pedido["status"] == status:
-                itens = ", ".join(item["nome"] for item in pedido["itens"])
+            if pedido.get("status") == status:
+                itens = pedido.get("itens", "N/A")
+                if not itens:
+                    itens = "N/A"
                 table.add_row(
-                    str(pedido["id"]),
-                    pedido["cliente"],
+                    str(pedido.get("id", "N/A")),
+                    pedido.get("cliente", "N/A"),
                     itens,
-                    pedido["entregador"],
-                    f"R$ {pedido['valor_total']:.2f}"
+                    pedido.get("entregador", "N/A"),
+                    f"R$ {pedido.get('valor_total', 0):.2f}"
                 )
         return table
 
@@ -135,7 +139,14 @@ def ListarPedidos() -> None:
         console.print(criar_tabela(status))
         
 def AtualizarStatus()->None:
-    lista_ids = []
+    from bd.pedidos import atualizar_status_pedido
+    
+    ListaPedidos = listar_pedidos()
+    
+    if not ListaPedidos:
+        console.print("[yellow]Nenhum pedido encontrado.[/yellow]")
+        return
+    
     table = Table(title="Pedidos")
 
     table.add_column("Index", justify="right")
@@ -146,19 +157,60 @@ def AtualizarStatus()->None:
     table.add_column("Valor")
     table.add_column("Status")
 
-    lista_ids = []
-
     for i, pedido in enumerate(ListaPedidos):
-        itens = ", ".join(item["nome"] for item in pedido["itens"])
+        itens = pedido.get("itens", "N/A")
+        if not itens:
+            itens = "N/A"
         table.add_row(
             str(i),
             str(pedido["id"]),
-            pedido["cliente"],
+            pedido.get("cliente", "N/A"),
             itens,
-            pedido["entregador"],
-            f"R$ {pedido['valor_total']:.2f}",
-            pedido["status"]
+            pedido.get("entregador", "N/A"),
+            f"R$ {pedido.get('valor_total', 0):.2f}",
+            pedido.get("status", "N/A")
         )
-        lista_ids.append(i)
 
     console.print(table)
+    
+    try:
+        indice = int(input("\nDigite o numero do pedido para alterar status: "))
+        if indice < 0 or indice >= len(ListaPedidos):
+            console.print("[red]Indice invalido![/red]")
+            return
+        
+        pedido_selecionado = ListaPedidos[indice]
+        current_status = pedido_selecionado.get("status", "")
+        
+        console.print("\n[bold]Selecione o novo status:[/bold]")
+        console.print("1 - Em andamento")
+        console.print("2 - Em entrega")
+        console.print("3 - Finalizado")
+        console.print("4 - Cancelado")
+        
+        opcao_status = input("Digite a opcao: ")
+        
+        status_opcoes = {
+            "1": "Em andamento",
+            "2": "Em entrega",
+            "3": "Finalizado",
+            "4": "Cancelado"
+        }
+        
+        novo_status = status_opcoes.get(opcao_status)
+        
+        if novo_status:
+            console.print(f"\nStatus atual: [yellow]{current_status}[/yellow]")
+            console.print(f"Novo status: [green]{novo_status}[/green]")
+            
+            confirmar = input("Confirmar alteracao? (s/n): ")
+            if confirmar.lower() == 's':
+                atualizar_status_pedido(pedido_selecionado['id'], novo_status)
+                console.print(f"[green]Status alterado para '{novo_status}' com sucesso![/green]")
+            else:
+                console.print("[yellow]Alteracao cancelada.[/yellow]")
+        else:
+            console.print("[red]Opcao invalida![/red]")
+            
+    except ValueError:
+        console.print("[red]Por favor, digite um numero valido.[/red]")
