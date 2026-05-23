@@ -90,7 +90,7 @@ def atualizar_pedido(pedido_atualizado):
         SET cliente_id=%s, entregador_id=%s, valor_total=%s, status=%s, forma_pagamento=%s, data_hora=%s
         WHERE id=%s
         """
-        cursor.execute(sql, (pedido_atualizado['cliente_id'],pedido_atualizado['entregador_id'],pedido_atualizado['valor_toal'],pedido_atualizado['status'],pedido_atualizado['forma_pagamento'],pedido_atualizado['data_hora']))
+        cursor.execute(sql, (pedido_atualizado['cliente_id'],pedido_atualizado['entregador_id'],pedido_atualizado['valor_toal'],pedido_atualizado['status'],pedido_atualizado['forma_pagamento'],pedido_atualizado['data_hora'],pedido_atualizado['id']))
 
         conn.commit()
         cursor.close()

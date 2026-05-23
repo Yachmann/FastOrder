@@ -48,7 +48,7 @@ def atualizar_funcionario(funcionario):
         SET nome=%s, cargo=%s, telefone=%s, veiculo=%s, email=%s, senha=%s
         WHERE id=%s
         """
-        cursor.execute(sql, (funcionario['nome'],funcionario['cargo'],funcionario['telefone'],funcionario['veiculo'],funcionario['email'],funcionario['senha']))
+        cursor.execute(sql, (funcionario['nome'],funcionario['cargo'],funcionario['telefone'],funcionario['veiculo'],funcionario['email'],funcionario['senha'],funcionario['id']))
 
         conn.commit()
         cursor.close()

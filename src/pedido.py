@@ -8,7 +8,7 @@ from rich.table import Table
 
 console = Console()
 
-def NovoPedido()->None:
+def NovoPedido() -> None:
     global produtos, clientes, entregadores
     
     produtos = listar_produtos()
@@ -24,91 +24,102 @@ def NovoPedido()->None:
         "status": "Em andamento",
         "forma_pagamento": None
     }
-    loop = True
-    while loop:
-        cliente_encontrado = False
-        cliente = None    
-        while not cliente_encontrado:
-            if not cliente:
-                cliente_email = input("Digite o email do cliente para este pedido: ")
-                if clientes:
-                    cliente = next((c for c in clientes if c["email"] == cliente_email), None)
+    
+    # --- BLOCO DO CLIENTE CORRIGIDO e SIMPLIFICADO ---
+    cliente = None    
+    while True:
+        cliente_email = input("Digite o email do cliente para este pedido: ")
+        
+        if clientes:
+            cliente = next((c for c in clientes if c["email"] == cliente_email), None)
+        
+        if cliente:
+            break  # Encontrou o cliente cadastrado, sai do loop de busca
             
-            if cliente:
-                pedido["cliente_id"] = cliente["id"]
-                endereco_loop = True
-                while endereco_loop:
-                    escolha_endereco = input(f"endereco registrado: {cliente['endereco']}. para confirmar digite 0, para alterar digite 1:")
-                    if escolha_endereco == "1":
-                        novo_endereco = input("Digite o novo endereco do cliente: ")
-                        cliente["endereco"] = novo_endereco
-                        endereco_loop = False
-                    elif escolha_endereco != "0":
-                        print("Opcao invalida")
-                    else:
-                        print("Endereco confirmado")
-                        endereco_loop = False
+        print("Cliente nao encontrado. cadastre-o.")
+        cliente = cadastrar_cliente()  # Recebe o dicionário do novo cliente com o ID populado
         
-                cliente_encontrado = True
-            else:
-                print("Cliente nao encontrado. cadastre-o.")
-                cliente = cadastrar_cliente()  
-                    
-        table = Table(title="Produtos Disponiveis", show_lines=True)
-
-        table.add_column("ID", justify="right", style="cyan")
-        table.add_column("Nome", style="green")
-        table.add_column("Preco", justify="right", style="yellow")
-        table.add_column("Descricao", style="white")
-
-        if not produtos:
-            console.print("[yellow]Nenhum produto cadastrado![/yellow]")
+        if cliente and "id" in cliente:
+            break  # Cadastro realizado com sucesso, sai do loop de busca
         else:
-            for i, produto in enumerate(produtos):
-                table.add_row(
-                    str(i),
-                    produto.get("nome", "N/A"),
-                    f"R$ {produto.get('preco', 0):.2f}",
-                    produto.get("descricao", "N/A")
-                )
+            print("Falha ao cadastrar cliente. Tente novamente.")
 
-        console.print(table)
+    # Vincula o ID do cliente (seja o antigo ou o recém-criado) ao pedido
+    pedido["cliente_id"] = cliente["id"]
+    
+    # Confirmação / Alteração do endereço do cliente
+    endereco_loop = True
+    while endereco_loop:
+        escolha_endereco = input(f"endereco registrado: {cliente['endereco']}. para confirmar digite 0, para alterar digite 1: ")
+        if escolha_endereco == "1":
+            novo_endereco = input("Digite o novo endereco do cliente: ")
+            cliente["endereco"] = novo_endereco
+            endereco_loop = False
+        elif escolha_endereco == "0":
+            print("Endereco confirmado")
+            endereco_loop = False
+        else:
+            print("Opcao invalida")
+    # --- FIM DO BLOCO DO CLIENTE ---
         
-        console.print(f"[dim]Total de produtos: {len(produtos)}[/dim]")
-        
-        itens = input("Digite os numeros dos produtos que deseja adicionar ao pedido (separados por espaco): ")
-        itens = itens.replace(",", " ").split()
-        for item in itens:
-            item = int(item)
-            pedido["itens"].append({
-                "produto_id": produtos[item]["id"],
-                "preco": produtos[item]["preco"]
-            })
-            pedido["valor_total"] += produtos[item]["preco"]
-        print(f"Valor total do pedido: R$ {pedido['valor_total']:.2f}")
-        
-        table = Table(title="Entregadores")
-        table.add_column("ID", justify="right")
-        table.add_column("Nome")
+    # --- MONTAGEM DA TABELA DE PRODUTOS ---
+    table = Table(title="Produtos Disponiveis", show_lines=True)
+    table.add_column("ID", justify="right", style="cyan")
+    table.add_column("Nome", style="green")
+    table.add_column("Preco", justify="right", style="yellow")
+    table.add_column("Descricao", style="white")
 
-        for i, entregador in enumerate(entregadores):
-            table.add_row(str(i), entregador["nome"])
+    if not produtos:
+        console.print("[yellow]Nenhum produto cadastrado![/yellow]")
+        return  # Encerra a função se não houver produtos para vender
+    else:
+        for i, produto in enumerate(produtos):
+            table.add_row(
+                str(i),
+                produto.get("nome", "N/A"),
+                f"R$ {produto.get('preco', 0):.2f}",
+                produto.get("descricao", "N/A")
+            )
 
-        console.print(table)
-        entregador_id = int(input("Digite o numero do entregador para este pedido: "))
-        pedido["entregador_id"] = entregadores[entregador_id]["id"]
-        pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartao, Dinheiro, Pix): ")
-        try:
-            pedido_id = adicionar_pedido(pedido)
+    console.print(table)
+    console.print(f"[dim]Total de produtos: {len(produtos)}[/dim]")
+    
+    # Seleção dos itens
+    itens = input("Digite os numeros dos produtos que deseja adicionar ao pedido (separados por espaco): ")
+    itens = itens.replace(",", " ").split()
+    for item in itens:
+        item = int(item)
+        pedido["itens"].append({
+            "produto_id": produtos[item]["id"],
+            "preco": produtos[item]["preco"]
+        })
+        pedido["valor_total"] += float(produtos[item]["preco"])
+    print(f"Valor total do pedido: R$ {pedido['valor_total']:.2f}")
+    
+    # --- SELEÇÃO DO ENTREGADOR ---
+    table = Table(title="Entregadores")
+    table.add_column("ID", justify="right")
+    table.add_column("Nome")
 
-            inserir_itens_pedido(pedido_id, pedido["itens"])
+    for i, entregador in enumerate(entregadores):
+        table.add_row(str(i), entregador["nome"])
 
-            console.print("[green]Pedido criado com sucesso![/green]")
+    console.print(table)
+    entregador_id = int(input("Digite o numero do entregador para este pedido: "))
+    pedido["entregador_id"] = entregadores[entregador_id]["id"]
+    
+    # Forma de pagamento
+    pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartao, Dinheiro, Pix): ")
+    
+    # --- PERSISTÊNCIA NO BANCO DE DADOS ---
+    try:
+        pedido_id = adicionar_pedido(pedido)
+        inserir_itens_pedido(pedido_id, pedido["itens"])
+        console.print("[green]Pedido criado com sucesso![/green]")
+    except Exception as e:
+        console.print(f"[red]Erro ao salvar pedido: {e}[/red]")
 
-        except Exception as e:
-            console.print(e)
-        
-        loop = False
+
 
 def ListarPedidos() -> None:
     ListaPedidos = listar_pedidos()

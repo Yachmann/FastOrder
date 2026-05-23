@@ -22,5 +22,7 @@ def adicionar_cliente(cliente:dict):
     """
         cursor.execute(sql,(cliente['nome'],cliente['email'],cliente['telefone'],cliente['endereco']))
         conn.commit()
+        novo_id = cursor.lastrowid
         cursor.close()
         conn.close()
+        return novo_id

@@ -3,6 +3,9 @@ from rich.table import Table
 from bd.funcionarios import listar_funcionarios,adicionar_funcionario,atualizar_funcionario
 from bd.produtos import listar_produtos, adicionar_produto,atualizar_produto
 from bd.clientes import listar_clientes_banco
+from bd.pedidos import listar_pedidos_por_status, listar_pedidos_por_data
+import time
+
 console = Console()
 
 
@@ -60,25 +63,28 @@ def editar_produto():
 
 
     indice = int(input("Digite o número do produto que deseja editar: "))
-
+    produto_a_editar = {}
     if indice in lista_ids:
-        produto = produtos[indice]
-        nome = input(f"Digite o novo nome do produto (deixe em branco para manter '{produto['nome']}'): ")
-        preco = input(f"Digite o novo preço do produto (deixe em branco para manter R$ {produto['preco']:.2f}): ")
-        descricao = input(f"Digite a nova descrição do produto (deixe em branco para manter '{produto['descricao']}'): ")
-        status = input(f"Digite o novo status do produto (1 para disponível, 0 para indisponível, deixe em branco para manter {'Disponível' if produto['status'] == 1 else 'Indisponível'}): ")
+        for produto in produtos:
+            if produto['id'] == indice:
+                produto_a_editar = produto
+
+        nome = input(f"Digite o novo nome do produto (deixe em branco para manter '{produto_a_editar['nome']}'): ")
+        preco = input(f"Digite o novo preço do produto (deixe em branco para manter R$ {produto_a_editar['preco']:.2f}): ")
+        descricao = input(f"Digite a nova descrição do produto (deixe em branco para manter '{produto_a_editar['descricao']}'): ")
+        status = input(f"Digite o novo status do produto (1 para disponível, 0 para indisponível, deixe em branco para manter {'Disponível' if produto_a_editar['status'] == 1 else 'Indisponível'}): ")
         
         if nome:
-            produto["nome"] = nome
+            produto_a_editar["nome"] = nome
         if preco:
-            produto["preco"] = float(preco)
+            produto_a_editar["preco"] = float(preco)
         if descricao:
-            produto["descricao"] = descricao
+            produto_a_editar["descricao"] = descricao
         if status:
-            produto["status"] = int(status)
+            produto_a_editar["status"] = int(status)
         
         try:
-            atualizar_produto(produto=produto)
+            atualizar_produto(produto=produto_a_editar)
             console.print("[green]Produto editado com sucesso![green]")
         except Exception as E:
             console.print("[red]Produto nao editado[red]")
@@ -95,7 +101,7 @@ def listar_produtos_():
     table.add_column("Descrição")
     table.add_column("Status")
 
-    for i, produto in enumerate(produtos):
+    for produto in (produtos):
         status = None
         if produto["status"] == 1:
             status = 'Disponivel'
@@ -104,7 +110,7 @@ def listar_produtos_():
 
 
         table.add_row(
-            str(i),
+            str(produto['id']),
             produto["nome"],
             f"R$ {produto['preco']:.2f}",
             produto["descricao"],
@@ -167,27 +173,30 @@ def editar_entregador():
     console.print(table)
         
     indice = int(input("Digite o número do entregador que deseja editar: "))
+    entregador_a_editar = {}
     if indice in lista_ids:
-        entregador = entregadores[indice]
-        nome = input(f"Digite o novo nome do entregador (deixe em branco para manter '{entregador['nome']}'): ")
-        telefone = input(f"Digite o novo telefone do entregador (deixe em branco para manter '{entregador['telefone']}'): ")
-        veiculo = input(f"Digite o novo veículo do entregador (deixe em branco para manter '{entregador['veiculo']}'): ")
-        email = input(f"Digite o novo email do entregador (deixe em branco para manter '{entregador['email']}'): ")
-        senha = input(f"Digite a nova senha do entregador (deixe em branco para manter '{entregador['senha']}'): ")
+        for entregador in entregadores:
+            if entregador['id'] == indice:
+                entregador_a_editar = entregador
+        nome = input(f"Digite o novo nome do entregador (deixe em branco para manter '{entregador_a_editar['nome']}'): ")
+        telefone = input(f"Digite o novo telefone do entregador (deixe em branco para manter '{entregador_a_editar['telefone']}'): ")
+        veiculo = input(f"Digite o novo veículo do entregador (deixe em branco para manter '{entregador_a_editar['veiculo']}'): ")
+        email = input(f"Digite o novo email do entregador (deixe em branco para manter '{entregador_a_editar['email']}'): ")
+        senha = input(f"Digite a nova senha do entregador (deixe em branco para manter '{entregador_a_editar['senha']}'): ")
         
         if nome:
-            entregador["nome"] = nome
+            entregador_a_editar["nome"] = nome
         if telefone:
-            entregador["telefone"] = telefone
+            entregador_a_editar["telefone"] = telefone
         if veiculo:
-            entregador["veiculo"] = veiculo
+            entregador_a_editar["veiculo"] = veiculo
         if email:
-            entregador["email"] = email
+            entregador_a_editar["email"] = email
         if senha:
-            entregador["senha"] = senha
+            entregador_a_editar["senha"] = senha
         
         try:
-            atualizar_funcionario(entregador)
+            atualizar_funcionario(entregador_a_editar)
             console.print("[green]Entregador editado com sucesso![/green]")
         except Exception as E:
             console.print("[red]Entregador nao editado.[/red]")    
@@ -247,22 +256,26 @@ def editar_atendente():
         
     indice = int(input("Digite o número do atendente que deseja editar: "))
     if indice in lista_ids:
-        atendente = atendentes[indice]
-        nome = input(f"Digite o novo nome do atendente (deixe em branco para manter '{atendente['nome']}'): ")
-        telefone = input(f"Digite o novo telefone do atendente (deixe em branco para manter '{atendente['telefone']}'): ")
-        email = input(f"Digite o novo email do atendente (deixe em branco para manter '{atendente['email']}'): ")
-        senha = input(f"Digite a nova senha do atendente (deixe em branco para manter '{atendente['senha']}'): ")
+        atendente_a_editar = {}
+        for atendente in atendentes:
+            if atendente['id'] == indice:
+                atendente_a_editar = atendente
+
+        nome = input(f"Digite o novo nome do atendente (deixe em branco para manter '{atendente_a_editar['nome']}'): ")
+        telefone = input(f"Digite o novo telefone do atendente (deixe em branco para manter '{atendente_a_editar['telefone']}'): ")
+        email = input(f"Digite o novo email do atendente (deixe em branco para manter '{atendente_a_editar['email']}'): ")
+        senha = input(f"Digite a nova senha do atendente (deixe em branco para manter '{atendente_a_editar['senha']}'): ")
         
         if nome:
-            atendente["nome"] = nome
+            atendente_a_editar["nome"] = nome
         if telefone:
-            atendente["telefone"] = telefone
+            atendente_a_editar["telefone"] = telefone
         if email:
-            atendente["email"] = email
+            atendente_a_editar["email"] = email
         if senha:
-            atendente["senha"] = senha
+            atendente_a_editar["senha"] = senha
         try:
-            atualizar_funcionario(atendente)
+            atualizar_funcionario(atendente_a_editar)
             console.print("[green]Atendente editado com sucesso![/green]")
         except Exception as E:
             console.print(f"[red]Atendente nao atualizado: {E}[/red]")
@@ -309,9 +322,9 @@ def listar_atendentes():
     table.add_column("Email")
     table.add_column("Senha")
 
-    for i, atendente in enumerate(atendentes):
+    for atendente in (atendentes):
         table.add_row(
-            str(i),
+            str(atendente['id']),
             atendente["nome"],
             atendente["telefone"],
             atendente["email"],
@@ -347,4 +360,73 @@ def listar_clientes():
        
 
     
+        
+def VerExtrato():
+    """
+    Exibe o extrato do dia com resumo de vendas.
+    """
+    data_atual = time.strftime("%Y-%m-%d", time.localtime())
+    pedidos_dia = listar_pedidos_por_data(data_atual)
     
+    if not pedidos_dia:
+        console.print("[yellow]Nenhum pedido encontrado hoje.[/yellow]")
+        return
+    
+    # Filtrar pedidos finalizados
+    pedidos_finalizados = [p for p in pedidos_dia if p.get('status') == 'Finalizado']
+    
+    if not pedidos_finalizados:
+        console.print("[yellow]Nenhum pedido finalizado hoje.[/yellow]")
+        return
+    
+    # Calcular total
+    total_receita = sum(p.get('valor_total', 0) for p in pedidos_finalizados)
+    total_pedidos = len(pedidos_finalizados)
+    
+    # Criar tabela de extrato
+    table = Table(title=f"Extrato do Dia - {data_atual}")
+    table.add_column("ID Pedido", justify="right")
+    table.add_column("Cliente")
+    table.add_column("Forma Pagamento")
+    table.add_column("Valor", justify="right")
+    
+    for pedido in pedidos_finalizados:
+        table.add_row(
+            str(pedido.get('id', 'N/A')),
+            pedido.get('cliente', 'N/A'),
+            pedido.get('forma_pagamento', 'N/A'),
+            f"R$ {pedido.get('valor_total', 0):.2f}"
+        )
+    
+    console.print(table)
+    console.print(f"\n[bold green]Total de Pedidos: {total_pedidos}[/bold green]")
+    console.print(f"[bold green]Receita Total: R$ {total_receita:.2f}[/bold green]")
+
+
+def PedidosCancelados():
+    """
+    Exibe a lista de pedidos cancelados.
+    """
+    pedidos_cancelados = listar_pedidos_por_status("Cancelado")
+    
+    if not pedidos_cancelados:
+        console.print("[yellow]Nenhum pedido cancelado.[/yellow]")
+        return
+    
+    table = Table(title="Pedidos Cancelados")
+    table.add_column("ID Pedido", justify="right")
+    table.add_column("Cliente")
+    table.add_column("Entregador")
+    table.add_column("Valor", justify="right")
+    table.add_column("Data/Hora")
+    
+    for pedido in pedidos_cancelados:
+        table.add_row(
+            str(pedido.get('id', 'N/A')),
+            pedido.get('cliente', 'N/A'),
+            pedido.get('entregador', 'N/A'),
+            f"R$ {pedido.get('valor_total', 0):.2f}",
+            str(pedido.get('data_hora', 'N/A'))
+        )
+    
+    console.print(table)

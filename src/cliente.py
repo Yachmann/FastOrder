@@ -17,14 +17,20 @@ def cadastrar_cliente():
         "endereco": endereco
     }
     try:
-        adicionar_cliente(cliente=cliente)
+        
+        novo_id = adicionar_cliente(cliente=cliente)
+        
+        
+        cliente["id"] = novo_id 
+        
         console.print("[green]Cliente cadastrado com sucesso![/green]")
+        
         return cliente
     
     except Exception as E:
         console.print(f"[red]Cliente nao cadastrado : {E} [/red]")
-        return {}
-    
+        return None 
+
     
 
 
