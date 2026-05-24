@@ -26,7 +26,7 @@ def verificar_acesso():
     if opçao == "1":
         loop_login = True
         while loop_login:
-            email = input('Digite o Email de ADMIN: ')
+            email = input('Digite o Email de ADMIN: ').lower()
             senha = input('Digite a Senha do ADMIN: ')
             if email == admin_email and senha == adminkey:
                 console.print("[green]Autenticado com Sucesso[/green]")
@@ -39,7 +39,7 @@ def verificar_acesso():
         loop_login = True
         while loop_login:
             
-            email = input("Digite o email: ")
+            email = input("Digite o email: ").lower()
             senha = input("Digite a senha: ")
             funcionario = verificar_funcionario(email = email, senha = senha, cargo = 'atendente')
             if funcionario:
@@ -52,7 +52,7 @@ def verificar_acesso():
         loop_login = True
         while loop_login:
             
-            email = input("Digite o email: ")
+            email = input("Digite o email: ").lower()
             senha = input("Digite a senha: ")
             funcionario = verificar_funcionario(email = email, senha = senha, cargo = 'entregador')
             if funcionario:

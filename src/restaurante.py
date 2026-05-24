@@ -64,35 +64,35 @@ def editar_produto():
 
     console.print(table)
 
+    try:
+        indice = int(input("Digite o número do produto que deseja editar: "))
+        produto_a_editar = {}
+        if indice in lista_ids:
+            for produto in produtos:
+                if produto['id'] == indice:
+                    produto_a_editar = produto
 
-    indice = int(input("Digite o número do produto que deseja editar: "))
-    produto_a_editar = {}
-    if indice in lista_ids:
-        for produto in produtos:
-            if produto['id'] == indice:
-                produto_a_editar = produto
-
-        nome = input(f"Digite o novo nome do produto (deixe em branco para manter '{produto_a_editar['nome']}'): ")
-        preco = input(f"Digite o novo preço do produto (deixe em branco para manter R$ {produto_a_editar['preco']:.2f}): ")
-        descricao = input(f"Digite a nova descrição do produto (deixe em branco para manter '{produto_a_editar['descricao']}'): ")
-        status = input(f"Digite o novo status do produto (1 para disponível, 0 para indisponível, deixe em branco para manter {'Disponível' if produto_a_editar['status'] == 1 else 'Indisponível'}): ")
-        
-        if nome:
-            produto_a_editar["nome"] = nome
-        if preco:
-            produto_a_editar["preco"] = float(preco)
-        if descricao:
-            produto_a_editar["descricao"] = descricao
-        if status:
-            produto_a_editar["status"] = int(status)
-        
-        try:
-            atualizar_produto(produto=produto_a_editar)
-            console.print("[green]Produto editado com sucesso![green]")
-        except Exception as E:
-            console.print("[red]Produto nao editado[red]")
-    else:
-        print("Índice inválido. Tente novamente.")
+            nome = input(f"Digite o novo nome do produto (deixe em branco para manter '{produto_a_editar['nome']}'): ")
+            preco = input(f"Digite o novo preço do produto (deixe em branco para manter R$ {produto_a_editar['preco']:.2f}): ")
+            descricao = input(f"Digite a nova descrição do produto (deixe em branco para manter '{produto_a_editar['descricao']}'): ")
+            status = input(f"Digite o novo status do produto (1 para disponível, 0 para indisponível, deixe em branco para manter {'Disponível' if produto_a_editar['status'] == 1 else 'Indisponível'}): ")
+            
+            if nome:
+                produto_a_editar["nome"] = nome
+            if preco:
+                produto_a_editar["preco"] = float(preco)
+            if descricao:
+                produto_a_editar["descricao"] = descricao
+            if status:
+                produto_a_editar["status"] = int(status)
+            
+            
+                atualizar_produto(produto=produto_a_editar)
+                console.print("[green]Produto editado com sucesso![green]")
+        else:
+            console.print("[red]Índice inválido. Tente novamente.[/red]")
+    except Exception as E:
+        console.print("[red]Produto nao editado[red]")
         
 def listar_produtos():
     produtos = listar_produtos_banco()
@@ -132,7 +132,7 @@ def adicionar_entregador():
         "telefone": telefone,
         "cargo": "entregador",
         "veiculo": veiculo,
-        "email" : email,
+        "email" : email.lower(),
         "senha": senha
     }
     try:
@@ -172,37 +172,37 @@ def editar_entregador():
         
 
     console.print(table)
+    try:
+        indice = int(input("Digite o número do entregador que deseja editar: "))
+        entregador_a_editar = {}
+        if indice in lista_ids:
+            for entregador in entregadores:
+                if entregador['id'] == indice:
+                    entregador_a_editar = entregador
+            nome = input(f"Digite o novo nome do entregador (deixe em branco para manter '{entregador_a_editar['nome']}'): ")
+            telefone = input(f"Digite o novo telefone do entregador (deixe em branco para manter '{entregador_a_editar['telefone']}'): ")
+            veiculo = input(f"Digite o novo veículo do entregador (deixe em branco para manter '{entregador_a_editar['veiculo']}'): ")
+            email = input(f"Digite o novo email do entregador (deixe em branco para manter '{entregador_a_editar['email']}'): ")
+            senha = input(f"Digite a nova senha do entregador (deixe em branco para manter '{entregador_a_editar['senha']}'): ")
+            
+            if nome:
+                entregador_a_editar["nome"] = nome
+            if telefone:
+                entregador_a_editar["telefone"] = telefone
+            if veiculo:
+                entregador_a_editar["veiculo"] = veiculo
+            if email:
+                entregador_a_editar["email"] = email
+            if senha:
+                entregador_a_editar["senha"] = senha
+            
         
-    indice = int(input("Digite o número do entregador que deseja editar: "))
-    entregador_a_editar = {}
-    if indice in lista_ids:
-        for entregador in entregadores:
-            if entregador['id'] == indice:
-                entregador_a_editar = entregador
-        nome = input(f"Digite o novo nome do entregador (deixe em branco para manter '{entregador_a_editar['nome']}'): ")
-        telefone = input(f"Digite o novo telefone do entregador (deixe em branco para manter '{entregador_a_editar['telefone']}'): ")
-        veiculo = input(f"Digite o novo veículo do entregador (deixe em branco para manter '{entregador_a_editar['veiculo']}'): ")
-        email = input(f"Digite o novo email do entregador (deixe em branco para manter '{entregador_a_editar['email']}'): ")
-        senha = input(f"Digite a nova senha do entregador (deixe em branco para manter '{entregador_a_editar['senha']}'): ")
-        
-        if nome:
-            entregador_a_editar["nome"] = nome
-        if telefone:
-            entregador_a_editar["telefone"] = telefone
-        if veiculo:
-            entregador_a_editar["veiculo"] = veiculo
-        if email:
-            entregador_a_editar["email"] = email
-        if senha:
-            entregador_a_editar["senha"] = senha
-        
-        try:
-            atualizar_funcionario(entregador_a_editar)
-            console.print("[green]Entregador editado com sucesso![/green]")
-        except Exception as E:
-            console.print("[red]Entregador nao editado.[/red]")    
-    else:
-        console.print("[red]Índice inválido. Tente novamente.[/red]")
+                atualizar_funcionario(entregador_a_editar)
+                console.print("[green]Entregador editado com sucesso![/green]")
+        else:
+            console.print("[red]Índice inválido. Tente novamente.[/red]")
+    except Exception as E:
+        console.print("[red]Entregador nao editado.[/red]")    
         
 
 def adicionar_atendente():
@@ -215,7 +215,7 @@ def adicionar_atendente():
     atendente = {
         "nome": nome,
         "telefone": telefone,
-        "email": email,
+        "email": email.lower(),
         "cargo": "atendente",
         "veiculo": "",
         "senha": senha
@@ -255,33 +255,34 @@ def editar_atendente():
 
     console.print(table)
         
-    indice = int(input("Digite o número do atendente que deseja editar: "))
-    if indice in lista_ids:
-        atendente_a_editar = {}
-        for atendente in atendentes:
-            if atendente['id'] == indice:
-                atendente_a_editar = atendente
+    try:
+        indice = int(input("Digite o número do atendente que deseja editar: "))
+        if indice in lista_ids:
+            atendente_a_editar = {}
+            for atendente in atendentes:
+                if atendente['id'] == indice:
+                    atendente_a_editar = atendente
 
-        nome = input(f"Digite o novo nome do atendente (deixe em branco para manter '{atendente_a_editar['nome']}'): ")
-        telefone = input(f"Digite o novo telefone do atendente (deixe em branco para manter '{atendente_a_editar['telefone']}'): ")
-        email = input(f"Digite o novo email do atendente (deixe em branco para manter '{atendente_a_editar['email']}'): ")
-        senha = input(f"Digite a nova senha do atendente (deixe em branco para manter '{atendente_a_editar['senha']}'): ")
-        
-        if nome:
-            atendente_a_editar["nome"] = nome
-        if telefone:
-            atendente_a_editar["telefone"] = telefone
-        if email:
-            atendente_a_editar["email"] = email
-        if senha:
-            atendente_a_editar["senha"] = senha
-        try:
-            atualizar_funcionario(atendente_a_editar)
-            console.print("[green]Atendente editado com sucesso![/green]")
-        except Exception as E:
-            console.print(f"[red]Atendente nao atualizado: {E}[/red]")
-    else:
-        print("Índice inválido. Tente novamente.")
+            nome = input(f"Digite o novo nome do atendente (deixe em branco para manter '{atendente_a_editar['nome']}'): ")
+            telefone = input(f"Digite o novo telefone do atendente (deixe em branco para manter '{atendente_a_editar['telefone']}'): ")
+            email = input(f"Digite o novo email do atendente (deixe em branco para manter '{atendente_a_editar['email']}'): ")
+            senha = input(f"Digite a nova senha do atendente (deixe em branco para manter '{atendente_a_editar['senha']}'): ")
+            
+            if nome:
+                atendente_a_editar["nome"] = nome
+            if telefone:
+                atendente_a_editar["telefone"] = telefone
+            if email:
+                atendente_a_editar["email"] = email
+            if senha:
+                atendente_a_editar["senha"] = senha
+            
+                atualizar_funcionario(atendente_a_editar)
+                console.print("[green]Atendente editado com sucesso![/green]")
+        else:
+            print("[red]Índice inválido. Tente novamente.[/red]")
+    except Exception as E:
+        console.print(f"[red]Atendente nao atualizado: {E}[/red]")
     
     
 def listar_entregadores():
@@ -363,9 +364,7 @@ def listar_clientes():
     
         
 def VerExtrato():
-    """
-    Exibe o extrato do dia com resumo de vendas.
-    """
+
     data_atual = time.strftime("%Y-%m-%d", time.localtime())
     pedidos_dia = listar_pedidos_por_data(data_atual)
     
@@ -373,18 +372,18 @@ def VerExtrato():
         console.print("[yellow]Nenhum pedido encontrado hoje.[/yellow]")
         return
     
-    # Filtrar pedidos finalizados
+
     pedidos_finalizados = [p for p in pedidos_dia if p.get('status') == 'Finalizado']
     
     if not pedidos_finalizados:
         console.print("[yellow]Nenhum pedido finalizado hoje.[/yellow]")
         return
     
-    # Calcular total
+
     total_receita = sum(p.get('valor_total', 0) for p in pedidos_finalizados)
     total_pedidos = len(pedidos_finalizados)
     
-    # Criar tabela de extrato
+
     table = Table(title=f"Extrato do Dia - {data_atual}")
     table.add_column("ID Pedido", justify="right")
     table.add_column("Cliente")
@@ -405,9 +404,7 @@ def VerExtrato():
 
 
 def PedidosCancelados():
-    """
-    Exibe a lista de pedidos cancelados.
-    """
+
     pedidos_cancelados = listar_pedidos_por_status("Cancelado")
     
     if not pedidos_cancelados:

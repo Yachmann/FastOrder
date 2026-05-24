@@ -3,7 +3,7 @@ from bd.pedidos import listar_pedidos_por_entregador, atualizar_status_pedido, l
 from rich.console import Console
 from rich.table import Table
 from bd.pedidos import listar_pedidos_por_entregador
-
+import time
 
 console = Console()
 
@@ -16,6 +16,7 @@ def listar_pedidos_entregador(ListaPedidos:list,entregador_id:int)->None:
     table.add_column('ITENS')
     table.add_column('ENDERECO')
     table.add_column('STATUS')
+    table.add_column('TEMPO DECORRIDO')
 
     for pedido in ListaPedidos:
         table.add_row(
@@ -24,7 +25,8 @@ def listar_pedidos_entregador(ListaPedidos:list,entregador_id:int)->None:
             str(pedido['valor_total']),
             pedido['itens'],
             pedido['endereco'],
-            pedido['status']
+            pedido['status'],
+            str(time.time() - pedido['data_hora'])
         )
     console.print(table)
 
