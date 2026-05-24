@@ -1,7 +1,7 @@
 from rich.console import Console
 from rich.table import Table
 from bd.funcionarios import listar_funcionarios,adicionar_funcionario,atualizar_funcionario
-from bd.produtos import listar_produtos, adicionar_produto,atualizar_produto
+from bd.produtos import listar_produtos as listar_produtos_banco, adicionar_produto, atualizar_produto
 from bd.clientes import listar_clientes_banco
 from bd.pedidos import listar_pedidos_por_status, listar_pedidos_por_data
 import time
@@ -91,8 +91,8 @@ def editar_produto():
     else:
         print("Índice inválido. Tente novamente.")
         
-def listar_produtos_():
-    produtos = listar_produtos()
+def listar_produtos():
+    produtos = listar_produtos_banco()
     table = Table(title="Produtos")
 
     table.add_column("ID", justify="right")
