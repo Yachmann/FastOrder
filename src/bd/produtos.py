@@ -40,6 +40,7 @@ def buscar_produto(id):
 
 def atualizar_produto(produto):
     conn = conectar_db()
+
     if conn:
         cursor = conn.cursor()
 
@@ -48,12 +49,21 @@ def atualizar_produto(produto):
         SET nome=%s, preco=%s, descricao=%s, status=%s
         WHERE id=%s
         """
-        cursor.execute(sql, (produto['nome'],produto['preco'],produto['descricao'],produto['status']))
+
+        valores = (
+            produto['nome'],
+            produto['preco'],
+            produto['descricao'],
+            produto['status'],
+            produto['id']
+        )
+
+        cursor.execute(sql, valores)
 
         conn.commit()
+
         cursor.close()
         conn.close()
-
 
 # DELETE
 def deletar_produto(id):

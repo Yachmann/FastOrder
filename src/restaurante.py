@@ -39,6 +39,9 @@ def adicionar_produto_():
 
 def editar_produto():
     produtos = listar_produtos()
+    if not produtos:
+        console.print("[yellow]Nenhum produto cadastrado.[/yellow]")
+        return
     lista_ids = [produto['id'] for produto in produtos ]
     table = Table(title="Editar Produto")
 
@@ -93,6 +96,7 @@ def editar_produto():
         
 def listar_produtos():
     produtos = listar_produtos_banco()
+
     table = Table(title="Produtos")
 
     table.add_column("ID", justify="right")
@@ -101,13 +105,8 @@ def listar_produtos():
     table.add_column("Descrição")
     table.add_column("Status")
 
-    for produto in (produtos):
-        status = None
-        if produto["status"] == 1:
-            status = 'Disponivel'
-        else:
-            status = 'Indisponivel'
-
+    for produto in produtos:
+        status = "Disponivel" if produto["status"] == 1 else "Indisponivel"
 
         table.add_row(
             str(produto['id']),
@@ -118,6 +117,8 @@ def listar_produtos():
         )
 
     console.print(table)
+
+    return produtos
         
 def adicionar_entregador():
     nome = input("Digite o nome do entregador: ")
