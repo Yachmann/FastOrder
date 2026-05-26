@@ -32,10 +32,15 @@ def adicionar_produto_():
             console.print("[green]Produto adicionado com sucesso![/green]")
         except Exception as E:
             console.print(f"[red]Produto adicionado com sucesso! {E}[/red]")
-        
-        opcao = input("Deseja adicionar outro produto? (s/n): ")
-        if opcao.lower() != 's':
-            concluido = True
+        loop_sim_ou_nao = True
+        while loop_sim_ou_nao:
+             opcao = input("Deseja adicionar outro produto? (s/n): ")
+             if opcao.lower() == 's':
+                 loop_sim_ou_nao = False
+             elif opcao.lower() == 'n':
+                 loop_sim_ou_nao = False
+             else:
+                 console.print("[yellow]Opção inválida. Digite 's' para sim ou 'n' para não.[/yellow]")
 
 def editar_produto():
     produtos = listar_produtos()

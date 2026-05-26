@@ -3,7 +3,7 @@ from bd.pedidos import listar_pedidos_por_entregador, atualizar_status_pedido, l
 from rich.console import Console
 from rich.table import Table
 from bd.pedidos import listar_pedidos_por_entregador
-import time
+import datetime
 
 console = Console()
 
@@ -99,13 +99,16 @@ def entregador_lista_pedidos(entregador_id_logado):
         table.add_column("Cliente")
         table.add_column("Valor")
         table.add_column("Status")
+        table.add_column("Tempo Decorrido")
+        
         
         for p in pedidos:
             table.add_row(
                 str(p.get('id', 'N/A')),
                 p.get('cliente', 'N/A'),
                 f"R$ {p.get('valor_total', 0):.2f}",
-                p.get('status', 'N/A')
+                p.get('status', 'N/A'),
+                str(datetime.datetime.now() - p['data_hora'])
             )
         console.print(table)
     else:
