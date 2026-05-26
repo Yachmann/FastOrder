@@ -1,4 +1,4 @@
-#Codigo em relação ao cliente
+
 from rich.console import Console
 from bd.clientes import adicionar_cliente
 

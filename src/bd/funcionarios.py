@@ -55,7 +55,7 @@ def atualizar_funcionario(funcionario):
         conn.close()
 
 
-# DELETE
+
 def deletar_funcionario(id):
     conn = conectar_db()
     if conn:

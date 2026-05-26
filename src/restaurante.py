@@ -97,7 +97,7 @@ def editar_produto():
         else:
             console.print("[red]Índice inválido. Tente novamente.[/red]")
     except Exception as E:
-        console.print("[red]Produto nao editado[red]")
+        console.print("[red]Produto nao editado[/red]")
         
 def listar_produtos():
     produtos = listar_produtos_banco()
@@ -285,7 +285,7 @@ def editar_atendente():
                 atualizar_funcionario(atendente_a_editar)
                 console.print("[green]Atendente editado com sucesso![/green]")
         else:
-            print("[red]Índice inválido. Tente novamente.[/red]")
+            console.print("[red]Índice inválido. Tente novamente.[/red]")
     except Exception as E:
         console.print(f"[red]Atendente nao atualizado: {E}[/red]")
     

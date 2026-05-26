@@ -4,7 +4,7 @@ def listar_pedidos()->list:
     conn = conectar_db()
     if conn:
         cursor = conn.cursor(dictionary = True)
-        # Join with pedido_itens to get item names, and clientes/entregadores for names
+  
         cursor.execute("""
             SELECT p.id, p.cliente_id, p.entregador_id, p.valor_total, p.status, 
                    p.forma_pagamento, p.data_hora,
@@ -98,7 +98,7 @@ def atualizar_pedido(pedido_atualizado):
 
 
 
-# DELETE
+
 def deletar_pedido(id):
     conn = conectar_db()
     if conn:
@@ -111,7 +111,7 @@ def deletar_pedido(id):
         conn.close()
 
 
-# LISTAR PEDIDOS POR STATUS
+
 def listar_pedidos_por_status(status: str) -> list:
     conn = conectar_db()
     if conn:
@@ -135,7 +135,7 @@ def listar_pedidos_por_status(status: str) -> list:
         return []
 
 
-# LISTAR PEDIDOS POR DATA
+
 def listar_pedidos_por_data(data: str) -> list:
     conn = conectar_db()
     if conn:
@@ -159,7 +159,7 @@ def listar_pedidos_por_data(data: str) -> list:
         return []
 
 
-# LISTAR PEDIDOS POR ENTREGADOR
+
 def listar_pedidos_por_entregador(entregador_id: int) -> list:
     conn = conectar_db()
     if conn:
@@ -183,7 +183,6 @@ def listar_pedidos_por_entregador(entregador_id: int) -> list:
         return []
 
 
-# ATUALIZAR STATUS DO PEDIDO
 def atualizar_status_pedido(pedido_id: int, novo_status: str):
     conn = conectar_db()
     if conn:

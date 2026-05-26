@@ -60,7 +60,7 @@ def alterar_status_entrega(entregador_id: int) -> None:
         )
     console.print(table)
     
-    # Selecionar pedido
+
     try:
         indice = int(input("\nDigite o número do pedido para alterar status: "))
         if indice in lista_ids:
@@ -68,7 +68,6 @@ def alterar_status_entrega(entregador_id: int) -> None:
                 if pedido['id'] == indice:
                     pedido_selecionado = pedido
                     current_status = pedido_selecionado['status']
-                    # Definir próximo status baseado no status atual
                     if current_status == "Em andamento":
                         novo_status = "Em entrega"
                     elif current_status == "Em entrega":

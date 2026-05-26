@@ -6,11 +6,11 @@ from rich.table import Table
 import time
 console = Console()
 
-# PRIMEIRO: Conectar e criar tabelas
+
 conectar_db()
 create_tables()
 
-# DEPOIS: Importar os módulos que dependem do banco
+
 from pedido import NovoPedido, ListarPedidos, AtualizarStatus
 from verificacao_acesso import verificar_acesso
 from restaurante import (adicionar_produto_, adicionar_atendente, adicionar_entregador, 
@@ -19,25 +19,23 @@ from restaurante import (adicionar_produto_, adicionar_atendente, adicionar_entr
                          listar_clientes, VerExtrato, PedidosCancelados)
 from funcionario import alterar_status_entrega, entregador_lista_pedidos
 
-# Variável global para armazenar o ID do entregador logado
+
 entregador_id_logado = None
 
-# LOOP PRINCIPAL DO SISTEMA (Gerencia a troca de usuários)
+
 while True:
     tipo_acesso, id = verificar_acesso()
 
-    # Se a função retornar None ou falso (caso queira criar uma opção de fechar o sistema no login)
+
     if not tipo_acesso:
         print("[yellow]Encerrando o FastOrder...[/yellow]")
         break
 
-    # =========================================================================
-    # Acesso de Administrador
-    # =========================================================================
+
     if tipo_acesso == 'admin':
         print("[green]Acesso de Administrador concedido.[/green]")
         opçao = None
-        while True:  # Loop infinito controlado internamente
+        while True:  
             print("======================================")
             print("       BEM VINDO A FASTORDER  ")
             print("======================================")
@@ -110,11 +108,8 @@ while True:
                 listar_clientes()
             elif opçao == 0:
                 print("[yellow]Saindo da sessão de Administrador...[/yellow]")
-                break  # Quebra o menu do admin e volta para a checagem de acesso global
-        
-    # =========================================================================
-    # Acesso de Atendente    
-    # =========================================================================
+                break  
+
     elif tipo_acesso == 'atendente':
         console.print("[green]Acesso de Atendente concedido.[/green]")
         opçao = None
@@ -161,11 +156,9 @@ while True:
                 PedidosCancelados()
             elif opçao == 0:
                 print("[yellow]Saindo da sessão de Atendente...[/yellow]")
-                break  # Quebra o menu do atendente e volta para a checagem de acesso global
+                break  
 
-    # =========================================================================
-    # Acesso de Entregador    
-    # =========================================================================
+
     elif tipo_acesso == 'entregador':
         entregador_id_logado = id 
         console.print(f"[green]Acesso de Entregador concedido ao Entregador com ID: {entregador_id_logado}[/green]")
@@ -198,6 +191,6 @@ while True:
                     console.print("[red]Faça login primeiro.[/red]")
             elif opcao == "0":
                 print("[yellow]Saindo da sessão de Entregador...[/yellow]")
-                entregador_id_logado = None  # Limpa o ID logado por segurança
+                entregador_id_logado = None 
                 break 
 

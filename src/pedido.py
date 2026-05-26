@@ -3,6 +3,7 @@ from bd.produtos import listar_produtos
 from bd.clientes import listar_clientes_banco,adicionar_cliente
 from bd.funcionarios import listar_funcionarios
 from cliente import cadastrar_cliente
+import datetime
 from rich.console import Console
 from rich.table import Table
 
@@ -25,7 +26,7 @@ def NovoPedido() -> None:
         "forma_pagamento": None
     }
     
-    # --- BLOCO DO CLIENTE CORRIGIDO e SIMPLIFICADO ---
+
     cliente = None    
     while True:
         cliente_email = input("Digite o email do cliente para este pedido: ").lower()
@@ -34,20 +35,19 @@ def NovoPedido() -> None:
             cliente = next((c for c in clientes if c["email"] == cliente_email), None)
         
         if cliente:
-            break  # Encontrou o cliente cadastrado, sai do loop de busca
+            break 
             
-        console.print("[orange]Cliente nao encontrado. cadastre-o.[/orange]")
-        cliente = cadastrar_cliente(email_ja_existente=cliente_email)  # Recebe o dicionário do novo cliente com o ID populado
+        console.print("[yellow]Cliente nao encontrado. [green]cadastre-o.[/green][/yellow]")
+        cliente = cadastrar_cliente(email_ja_existente=cliente_email)  
         
         if cliente and "id" in cliente:
-            break  # Cadastro realizado com sucesso, sai do loop de busca
+            break  
         else:
             console.print("[red]Falha ao cadastrar cliente. Tente novamente.[/red]")
 
-    # Vincula o ID do cliente (seja o antigo ou o recém-criado) ao pedido
     pedido["cliente_id"] = cliente["id"]
     
-    # Confirmação / Alteração do endereço do cliente
+
     endereco_loop = True
     while endereco_loop:
         console.print(f"endereco registrado: [blue]{cliente['endereco']}[/blue].")
@@ -63,9 +63,8 @@ def NovoPedido() -> None:
             endereco_loop = False
         else:
             console.print("[red]Opcao invalida[/red]")
-    # --- FIM DO BLOCO DO CLIENTE ---
+
         
-    # --- MONTAGEM DA TABELA DE PRODUTOS ---
     table = Table(title="Produtos Disponiveis", show_lines=True)
     table.add_column("ID", justify="right", style="cyan")
     table.add_column("Nome", style="green")
@@ -74,7 +73,7 @@ def NovoPedido() -> None:
 
     if not produtos:
         console.print("[yellow]Nenhum produto cadastrado![/yellow]")
-        return  # Encerra a função se não houver produtos para vender
+        return 
     else:
         for i, produto in enumerate(produtos):
             table.add_row(
@@ -87,7 +86,7 @@ def NovoPedido() -> None:
     console.print(table)
     console.print(f"[dim]Total de produtos: {len(produtos)}[/dim]")
     try:
-        # Seleção dos itens
+
         itens = input("Digite os numeros dos produtos que deseja adicionar ao pedido (separados por espaco): ")
         itens = itens.replace(",", " ").split()
         for item in itens:
@@ -105,7 +104,7 @@ def NovoPedido() -> None:
             pedido["valor_total"] += float(produtos[item]["preco"])
         console.print(f"[blue]Valor total do pedido: [green]R$ {pedido['valor_total']:.2f}[/green][/blue]")
         
-        # --- SELEÇÃO DO ENTREGADOR ---
+
         table = Table(title="Entregadores")
         table.add_column("ID", justify="right")
         table.add_column("Nome")
@@ -117,7 +116,7 @@ def NovoPedido() -> None:
         entregador_id = int(input("Digite o numero do entregador para este pedido: "))
         pedido["entregador_id"] = entregadores[entregador_id]["id"]
         
-        # Forma de pagamento
+
         console.print("[yellow]Digite a forma de pagamento[/yellow]")
         console.print("(Cartao [green]0[/green], Dinheiro [yellow]1[/yellow], Pix [red]2[/red] Voucher [blue]3[/blue]): ")
         lista_pagamentos = ["0","1","2"]
@@ -153,7 +152,7 @@ def NovoPedido() -> None:
         if not pagamento_debito_ou_credito:   
             pedido["forma_pagamento"] = id_to_pagamento[escolha_forma_pagamento]
         
-        # --- PERSISTÊNCIA NO BANCO DE DADOS ---
+
         pedido_id = adicionar_pedido(pedido)
         inserir_itens_pedido(pedido_id, pedido["itens"])
         console.print("[green]Pedido criado com sucesso![/green]")
@@ -208,6 +207,7 @@ def AtualizarStatus()->None:
     table.add_column("Entregador")
     table.add_column("Valor")
     table.add_column("Status")
+    table.add_column("Tempo Decorrido")
 
     for  pedido in (ListaPedidos):
         itens = pedido.get("itens", "N/A")
@@ -219,7 +219,9 @@ def AtualizarStatus()->None:
             itens,
             pedido.get("entregador", "N/A"),
             f"R$ {pedido.get('valor_total', 0):.2f}",
-            pedido.get("status", "N/A")
+            pedido.get("status", "N/A"),
+            str(datetime.datetime.now() - pedido['data_hora'])
+
         )
 
     console.print(table)
