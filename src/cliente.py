@@ -4,9 +4,12 @@ from bd.clientes import adicionar_cliente
 
 console = Console()
 
-def cadastrar_cliente():
+def cadastrar_cliente(email_ja_existente):
     nome = input("Digite o nome do cliente: ")
-    email = input("Digite o email do cliente: ")
+    if not email_ja_existente:
+        email = input("Digite o email do cliente: ")
+    else:
+        email = email_ja_existente
     telefone = input("Digite o telefone do cliente: ")
     endereco = input("Digite o endereço do cliente: ")
     

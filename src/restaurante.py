@@ -338,7 +338,7 @@ def listar_atendentes():
 
 def listar_clientes():
     clientes = listar_clientes_banco()
-    table = Table(title="Atendentes")
+    table = Table(title="Clientes")
 
     table.add_column("ID", justify="right")
     table.add_column("Nome")

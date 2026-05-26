@@ -37,7 +37,7 @@ def NovoPedido() -> None:
             break  # Encontrou o cliente cadastrado, sai do loop de busca
             
         console.print("[orange]Cliente nao encontrado. cadastre-o.[/orange]")
-        cliente = cadastrar_cliente()  # Recebe o dicionário do novo cliente com o ID populado
+        cliente = cadastrar_cliente(email_ja_existente=cliente_email)  # Recebe o dicionário do novo cliente com o ID populado
         
         if cliente and "id" in cliente:
             break  # Cadastro realizado com sucesso, sai do loop de busca
@@ -103,7 +103,7 @@ def NovoPedido() -> None:
             })
 
             pedido["valor_total"] += float(produtos[item]["preco"])
-        print(f"Valor total do pedido: R$ {pedido['valor_total']:.2f}")
+        console.print(f"[blue]Valor total do pedido: [green]R$ {pedido['valor_total']:.2f}[/green][/blue]")
         
         # --- SELEÇÃO DO ENTREGADOR ---
         table = Table(title="Entregadores")
@@ -118,7 +118,40 @@ def NovoPedido() -> None:
         pedido["entregador_id"] = entregadores[entregador_id]["id"]
         
         # Forma de pagamento
-        pedido["forma_pagamento"] = input("Digite a forma de pagamento (Cartao, Dinheiro, Pix): ")
+        console.print("[yellow]Digite a forma de pagamento[/yellow]")
+        console.print("(Cartao [green]0[/green], Dinheiro [yellow]1[/yellow], Pix [red]2[/red] Voucher [blue]3[/blue]): ")
+        lista_pagamentos = ["0","1","2"]
+        escolha_forma_pagamento = input()
+        if escolha_forma_pagamento not in lista_pagamentos:
+            console.print("[red]Opçao Invalida ! [/red]")
+            return
+        id_to_pagamento = {
+            "1": "Dinheiro",
+            "2": "Pix",
+            "3": "Voucher",
+            "4": "Cartao Debito",
+            "5": "Cartao Credito"
+        }
+
+        if escolha_forma_pagamento == "0":
+            loop_debito_credito = True
+            while loop_debito_credito:
+                console.print("[yellow]Digite [green]0[/green] para Debito e [green]1[/green] para Credito [/yellow]")
+                escolha_debito_credito = input()
+                if escolha_debito_credito not in ["0", "1"]:
+                    console.print("[red]Opcao Invalida ! [/red]")
+                    return
+                pagamento_debito_ou_credito = None
+                if escolha_debito_credito == "0":
+                    pagamento_debito_ou_credito = "4"
+                else: 
+                    pagamento_debito_ou_credito = "5"
+
+                pedido["forma_pagamento"] = id_to_pagamento[pagamento_debito_ou_credito]
+                loop_debito_credito = False
+
+        if not pagamento_debito_ou_credito:   
+            pedido["forma_pagamento"] = id_to_pagamento[escolha_forma_pagamento]
         
         # --- PERSISTÊNCIA NO BANCO DE DADOS ---
         pedido_id = adicionar_pedido(pedido)

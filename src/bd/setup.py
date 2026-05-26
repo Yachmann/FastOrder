@@ -33,6 +33,7 @@ def create_tables():
 
             
             if total_produtos == 0:
+                console.print("[green] PIZZAS ADICIONADAS AO BANCO DE DADOS [/green]")
                 cursor.execute("""
                             INSERT INTO produtos (nome, preco, descricao, status) VALUES
     ('Pizza Calabresa', 45.90, 'Molho de tomate, mussarela, calabresa fatiada e orégano.', TRUE),
@@ -58,6 +59,8 @@ def create_tables():
     ('Água Tônica 350ml', 7.50, 'Água tônica gelada.', TRUE),
     ('Refrigerante Fanta Laranja 350ml', 8.50, 'Lata de Fanta Laranja gelada.', TRUE),
     ('Suco de Abacaxi com Hortelã 300ml', 11.50, 'Suco de abacaxi com hortelã refrescante.', TRUE)""")
+                
+    
             
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS funcionarios (
@@ -78,7 +81,7 @@ def create_tables():
                 entregador_id INT,
                 valor_total FLOAT,
                 status VARCHAR(50),
-                forma_pagamento VARCHAR(50),
+                forma_pagamento ENUM('Cartao Debito','Cartao Credito', 'Dinheiro', 'Pix', 'Voucher'),
                 data_hora DATETIME,
                 FOREIGN KEY (cliente_id) REFERENCES clientes(id),
                 FOREIGN KEY (entregador_id) REFERENCES funcionarios(id)
