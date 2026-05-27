@@ -11,13 +11,15 @@ conectar_db()
 create_tables()
 
 
-from pedido import NovoPedido, ListarPedidos, AtualizarStatus
+from pedido import NovoPedido, ListarPedidos, AtualizarStatus, excluir_pedido_tela
 from verificacao_acesso import verificar_acesso
 from restaurante import (adicionar_produto_, adicionar_atendente, adicionar_entregador, 
-                         editar_produto, editar_entregador, editar_atendente,
+                         editar_produto, editar_entregador, editar_atendente, excluir_cliente_tela, excluir_funcionario_tela, excluir_produto_tela,
                          listar_produtos, listar_entregadores, listar_atendentes,
                          listar_clientes, VerExtrato, PedidosCancelados)
 from funcionario import alterar_status_entrega, entregador_lista_pedidos
+from cliente import editar_cliente
+from pedido import editar_pedido
 
 
 entregador_id_logado = None
@@ -34,10 +36,9 @@ while True:
 
     if tipo_acesso == 'admin':
         print("[green]Acesso de Administrador concedido.[/green]")
-        opçao = None
         while True:  
             print("======================================")
-            print("       BEM VINDO A FASTORDER  ")
+            print("       BEM VINDO A FASTORDER (ADMIN)  ")
             print("======================================")
             print("")
             print("1- Novo Produto")
@@ -50,6 +51,8 @@ while True:
             print("8- Editar Atendente")
             print("9- Listar Atendentes")
             print("10- Listar Clientes")
+            print("11- Editar Cliente")
+            print("12- Deletar (Produtos, Funcionários, Clientes, Pedidos)")
             print("0- Sair")
             print("")
             print("======================================")
@@ -106,6 +109,41 @@ while True:
                 print("         LISTAR CLIENTES              ")
                 print("======================================")
                 listar_clientes()
+            elif opçao == 11:
+                print("======================================")
+                print("         EDITAR CLIENTE              ")
+                print("======================================")
+                editar_cliente()
+            
+            elif opçao == 12:
+                while True:
+                    print("======================================")
+                    print("       PAINEL DE CONTROLE DE DELEÇÕES ")
+                    print("======================================")
+                    print("1- Excluir Produto")
+                    print("2- Excluir Funcionário (Entregador/Atendente)")
+                    print("3- Excluir Cliente")
+                    print("4- Excluir Pedido ")
+                    print("0- Voltar")
+                    print("======================================")
+                    try:
+                        op_del = int(input("Escolha a exclusão que deseja realizar: "))
+                    except ValueError:
+                        console.print("[red]Digite apenas números.[/red]")
+                        continue
+                    
+                    if op_del == 1:
+                        excluir_produto_tela()
+                    elif op_del == 2:
+                        excluir_funcionario_tela()
+                    elif op_del == 3:
+                        excluir_cliente_tela()
+                    elif op_del == 4:
+                        excluir_pedido_tela()
+                    elif op_del == 0:
+                        break
+
+                    
             elif opçao == 0:
                 print("[yellow]Saindo da sessão de Administrador...[/yellow]")
                 break  
@@ -121,8 +159,9 @@ while True:
             print("1- Novo Pedido")
             print("2- Listar Pedidos")
             print("3- Atualizar Status")
-            print("4- Ver Extrato do dia")
-            print("5- Ver Pedidos Cancelados")
+            print("4- Editar Pedido")
+            print("5- Ver Extrato do dia")
+            print("6- Ver Pedidos Cancelados")
             print("0- Sair" )
             print("")
             print("======================================")
@@ -144,12 +183,18 @@ while True:
                 print("          ATUALIZAR STATUS            ")
                 print("======================================")
                 AtualizarStatus()
+            
             elif opçao == 4:
+                print("======================================")
+                print("          EDITAR PEDIDO             ")
+                print("======================================")
+                editar_pedido()
+            elif opçao == 5:
                 print("======================================")
                 print("          EXTRATO DO DIA              ")
                 print("======================================")
                 VerExtrato()
-            elif opçao == 5:
+            elif opçao == 6:
                 print("======================================")
                 print("         PEDIDOS CANCELADOS           ")
                 print("======================================")

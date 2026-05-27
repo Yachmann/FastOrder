@@ -39,7 +39,7 @@ def create_tables():
     ('Pizza Calabresa', 45.90, 'Molho de tomate, mussarela, calabresa fatiada e orégano.', TRUE),
     ('Pizza Calabresa com Cebola', 46.90, 'Molho de tomate, mussarela, calabresa e cebola caramelizada.', TRUE),
     ('Pizza Portuguesa', 49.90, 'Molho de tomate, mussarela, presunto, ovo, cebola, azeitonas e ervilhas.', TRUE),
-    ('Pizza Quatro Queijos', 52.90, 'Molho de tomate e blend de quatro queijos: mussarela, provolone, gorgonzola e parmesão.', TRUE),
+    ('Pizza Quatro Queijos', 52.90, 'Molho de tomate and blend de quatro queijos: mussarela, provolone, gorgonzola e parmesão.', TRUE),
     ('Pizza Margherita', 39.90, 'Molho de tomate, mussarela, tomate e manjericão.', TRUE),
     ('Pizza Frango com Catupiry', 48.90, 'Molho de tomate, mussarela, frango desfiado e catupiry cremoso.', TRUE),
     ('Pizza Pepperoni', 47.90, 'Molho de tomate, mussarela e fatias generosas de pepperoni.', TRUE),
@@ -74,6 +74,7 @@ def create_tables():
             )
             """)
 
+            # Alterado: Adicionado CASCADE para cliente e SET NULL para entregador
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS pedidos (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,19 +84,20 @@ def create_tables():
                 status VARCHAR(50),
                 forma_pagamento ENUM('Cartao Debito','Cartao Credito', 'Dinheiro', 'Pix', 'Voucher'),
                 data_hora DATETIME,
-                FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-                FOREIGN KEY (entregador_id) REFERENCES funcionarios(id)
+                FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
+                FOREIGN KEY (entregador_id) REFERENCES funcionarios(id) ON DELETE SET NULL
             )
             """)
 
+            # Alterado: Adicionado CASCADE para pedido e produto
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS pedido_itens (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 pedido_id INT,
                 produto_id INT,
                 preco FLOAT,
-                FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
-                FOREIGN KEY (produto_id) REFERENCES produtos(id)
+                FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
+                FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
             )
             """)
 

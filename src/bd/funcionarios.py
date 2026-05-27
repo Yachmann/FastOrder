@@ -30,7 +30,7 @@ def buscar_funcionario(id):
     if conn:
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM funcionario WHERE id = %s", (id,))
+        cursor.execute("SELECT * FROM funcionarios WHERE id = %s", (id,))
         funcionario = cursor.fetchone()
 
         cursor.close()

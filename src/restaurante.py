@@ -1,8 +1,8 @@
 from rich.console import Console
 from rich.table import Table
-from bd.funcionarios import listar_funcionarios,adicionar_funcionario,atualizar_funcionario
-from bd.produtos import listar_produtos as listar_produtos_banco, adicionar_produto, atualizar_produto
-from bd.clientes import listar_clientes_banco
+from bd.funcionarios import deletar_funcionario, listar_funcionarios,adicionar_funcionario,atualizar_funcionario
+from bd.produtos import listar_produtos as listar_produtos_banco, adicionar_produto, atualizar_produto,deletar_produto
+from bd.clientes import listar_clientes_banco,deletar_cliente
 from bd.pedidos import listar_pedidos_por_status, listar_pedidos_por_data
 import time
 
@@ -124,6 +124,21 @@ def listar_produtos():
     console.print(table)
 
     return produtos
+
+def excluir_produto_tela():
+    produtos = listar_produtos()
+    if not produtos:
+        return
+    lista_ids = [produto['id'] for produto in produtos]
+    try:
+        id_excluir = int(input("Digite o ID do produto que deseja DELETAR: "))
+        if id_excluir in lista_ids:
+            deletar_produto(id_excluir)
+            console.print("[green]Produto deletado com sucesso (e removido dos itens de pedidos)![/green]")
+        else:
+            console.print("[red]ID inválido.[/red]")
+    except Exception as E:
+        console.print(f"[red]Erro ao deletar produto: {E}[/red]")
         
 def adicionar_entregador():
     nome = input("Digite o nome do entregador: ")
@@ -340,6 +355,47 @@ def listar_atendentes():
 
     console.print(table)
 
+def excluir_funcionario_tela():
+    try:
+        funcionarios = listar_funcionarios()
+    except Exception as E:
+        console.print(f"[red]Erro ao buscar funcionários no banco: {E}[/red]")
+        return
+        
+    if not funcionarios:
+        console.print("[yellow]Nenhum funcionário cadastrado no sistema.[/yellow]")
+        return
+        
+    table = Table(title="Excluir Funcionário")
+    table.add_column("ID", justify="right", style="cyan")
+    table.add_column("Nome", style="white")
+    table.add_column("Cargo", style="yellow")
+    table.add_column("Email", style="white")
+    
+    for f in funcionarios:
+        table.add_row(
+            str(f['id']), 
+            f['nome'], 
+            f['cargo'].upper(), 
+            f['email']
+        )
+    console.print(table)
+    
+    try:
+        id_excluir = int(input("Digite o ID do funcionário que deseja DELETAR: "))
+        lista_ids = [f['id'] for f in funcionarios]
+        
+        if id_excluir in lista_ids:
+            deletar_funcionario(id_excluir)
+            console.print("[green]Funcionário removido com sucesso! Histórico de pedidos preservado.[/green]")
+        else:
+            console.print("[red]ID inválido. Operação cancelada.[/red]")
+            
+    except ValueError:
+        console.print("[red]Entrada inválida! Digite apenas números.[/red]")
+    except Exception as E:
+        console.print(f"[red]Erro ao deletar funcionário: {E}[/red]")
+
 
 def listar_clientes():
     clientes = listar_clientes_banco()
@@ -362,6 +418,50 @@ def listar_clientes():
 
     console.print(table)
         
+def excluir_cliente_tela():
+    # 1. Busca os clientes cadastrados para listar na tela
+    try:
+        clientes = listar_clientes_banco()
+    except Exception as E:
+        console.print(f"[red]Erro ao conectar com o banco de dados: {E}[/red]")
+        return
+        
+    if not clientes:
+        console.print("[yellow]Nenhum cliente cadastrado no sistema.[/yellow]")
+        return
+        
+    # 2. Monta a tabela visual organizada
+    table = Table(title="Excluir Cliente")
+    table.add_column("ID", justify="right", style="cyan")
+    table.add_column("Nome", style="white")
+    table.add_column("Telefone", style="white")
+    table.add_column("Email", style="white")
+    
+    for c in clientes:
+        table.add_row(
+            str(c['id']), 
+            c['nome'], 
+            c['telefone'], 
+            c['email']
+        )
+    console.print(table)
+    
+    # 3. Executa a deleção com validação
+    try:
+        id_excluir = int(input("Digite o ID do cliente que deseja DELETAR: "))
+        lista_ids = [c['id'] for c in clientes]
+        
+        if id_excluir in lista_ids:
+            # Chama a função de delete do seu arquivo bd.clientes
+            deletar_cliente(id_excluir)
+            console.print("[green]Cliente removido com sucesso! Todos os seus pedidos foram apagados automaticamente pelo banco.[/green]")
+        else:
+            console.print("[red]ID inválido. Operação cancelada.[/red]")
+            
+    except ValueError:
+        console.print("[red]Entrada inválida! Digite apenas números para o ID.[/red]")
+    except Exception as E:
+        console.print(f"[red]Erro ao deletar cliente: {E}[/red]")
 
     
        

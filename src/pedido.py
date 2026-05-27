@@ -188,7 +188,73 @@ def ListarPedidos() -> None:
 
     for status in ["Em andamento", "Em entrega", "Finalizado", "Cancelado"]:
         console.print(criar_tabela(status))
+
+def editar_pedido():
+    pedidos = listar_pedidos()
+    if not pedidos:
+        console.print("[yellow]Nenhum pedido cadastrado.[/yellow]")
+        return
         
+    lista_ids = [pedido['id'] for pedido in pedidos]
+    table = Table(title="Editar Pedido")
+
+    table.add_column("ID", justify="right")
+    table.add_column("Cliente")
+    table.add_column("Entregador")
+    table.add_column("Itens")
+    table.add_column("Total")
+    table.add_column("Status")
+    table.add_column("Pagamento")
+
+    for pedido in pedidos:
+        itens = pedido["itens"] if pedido["itens"] else "Nenhum"
+        cliente = pedido["cliente"] if pedido["cliente"] else "Não informado"
+        entregador = pedido["entregador"] if pedido["entregador"] else "Não atribuído"
+        
+        table.add_row(
+            str(pedido['id']),
+            cliente,
+            entregador,
+            itens,
+            f"R$ {pedido['valor_total']:.2f}",
+            pedido["status"],
+            pedido["forma_pagamento"]
+        )
+
+    console.print(table)
+
+    try:
+        indice = int(input("Digite o ID do pedido que deseja editar: "))
+        pedido_a_editar = {}
+        
+        if indice in lista_ids:
+            for pedido in pedidos:
+                if pedido['id'] == indice:
+                    pedido_a_editar = pedido
+
+            entregador_id = input(f"Novo ID do entregador (atual '{pedido_a_editar['entregador_id']}') (Pressione Enter para manter o atual): ")
+            valor_total = input(f"Novo valor total (atual R$ {pedido_a_editar['valor_total']:.2f}) (Pressione Enter para manter o atual): ")
+            status = input(f"Novo status (atual '{pedido_a_editar['status']}') (Pressione Enter para manter o atual): ")
+            forma_pagamento = input(f"Nova forma de pagamento (atual '{pedido_a_editar['forma_pagamento']}') (Pressione Enter para manter o atual): ")
+            
+            if entregador_id:
+                pedido_a_editar["entregador_id"] = int(entregador_id)
+            if valor_total:
+                pedido_a_editar["valor_total"] = float(valor_total)
+            if status:
+                pedido_a_editar["status"] = status
+            if forma_pagamento:
+                pedido_a_editar["forma_pagamento"] = forma_pagamento
+            
+            atualizar_pedido(pedido_atualizado=pedido_a_editar)
+            console.print("[green]Pedido editado com sucesso![/green]")
+        else:
+            console.print("[red]ID inválido. Tente novamente.[/red]")
+            
+    except Exception as E:
+        console.print(f"[red]Pedido não editado: {E}[/red]")
+
+
 def AtualizarStatus()->None:
     from bd.pedidos import atualizar_status_pedido
     
@@ -268,3 +334,59 @@ def AtualizarStatus()->None:
             
     except ValueError:
         console.print("[red]Por favor, digite um numero valido.[/red]")
+
+def excluir_pedido_tela():
+    try:
+        pedidos = listar_pedidos()
+    except Exception as E:
+        console.print(f"[red]Erro ao buscar pedidos no banco: {E}[/red]")
+        return
+        
+    if not pedidos:
+        console.print("[yellow]Nenhum pedido cadastrado no sistema.[/yellow]")
+        return
+        
+    table = Table(title="Excluir Pedido")
+    table.add_column("ID", justify="right", style="cyan")
+    table.add_column("Cliente", style="white")
+    table.add_column("Entregador", style="white")
+    table.add_column("Valor Total", justify="right", style="green")
+    table.add_column("Status", style="yellow")
+    table.add_column("Data/Hora", style="white")
+    
+    for p in pedidos:
+        cliente_nome = p.get('cliente') or "Não informado"
+        entregador_nome = p.get('entregador') or "Sem entregador"
+        valor = p.get('valor_total') or 0.0
+        data_hora = str(p.get('data_hora'))
+        
+        table.add_row(
+            str(p['id']), 
+            cliente_nome, 
+            entregador_nome, 
+            f"R$ {valor:.2f}", 
+            p['status'], 
+            data_hora
+        )
+    console.print(table)
+    
+    try:
+        id_excluir = int(input("Digite o ID do pedido que deseja DELETAR: "))
+        lista_ids = [p['id'] for p in pedidos]
+        
+        if id_excluir in lista_ids:
+            confirmar = input(f"Tem certeza que deseja apagar o pedido #{id_excluir} e todos os seus itens? (s/n): ")
+            
+            if confirmar.lower() == 's':
+                deletar_pedido(id_excluir)
+                console.print("[green]Pedido e todos os seus itens associados foram removidos com sucesso![/green]")
+            else:
+                console.print("[yellow]Operação cancelada pelo usuário.[/yellow]")
+        else:
+            console.print("[red]ID inválido. Operação cancelada.[/red]")
+            
+    except ValueError:
+        console.print("[red]Entrada inválida! Digite apenas o número do ID do pedido.[/red]")
+    except Exception as E:
+        console.print(f"[red]Erro ao remover pedido: {E}[/red]")
+
