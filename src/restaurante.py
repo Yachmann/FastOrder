@@ -14,33 +14,42 @@ console = Console()
 
 def adicionar_produto_():
     concluido = False
+
     while not concluido:
         nome = input("Digite o nome do produto: ")
         preco = float(input("Digite o preço do produto: "))
         descricao = input("Digite a descrição do produto: ")
         status = int(input("Digite o status do produto (1 para disponível, 0 para indisponível): "))
-        
+
         produto = {
             "nome": nome,
             "preco": preco,
             "descricao": descricao,
             "status": status
         }
-        
+
         try:
             adicionar_produto(produto=produto)
             console.print("[green]Produto adicionado com sucesso![/green]")
         except Exception as E:
-            console.print(f"[red]Produto adicionado com sucesso! {E}[/red]")
+            console.print(f"[red]Erro ao adicionar produto: {E}[/red]")
+
         loop_sim_ou_nao = True
+
         while loop_sim_ou_nao:
-             opcao = input("Deseja adicionar outro produto? (s/n): ")
-             if opcao.lower() == 's':
-                 loop_sim_ou_nao = False
-             elif opcao.lower() == 'n':
-                 loop_sim_ou_nao = False
-             else:
-                 console.print("[yellow]Opção inválida. Digite 's' para sim ou 'n' para não.[/yellow]")
+            opcao = input("Deseja adicionar outro produto? (s/n): ")
+
+            if opcao.lower() == 's':
+                loop_sim_ou_nao = False
+
+            elif opcao.lower() == 'n':
+                concluido = True
+                loop_sim_ou_nao = False
+
+            else:
+                console.print(
+                    "[yellow]Opção inválida. Digite 's' para sim ou 'n' para não.[/yellow]"
+                )
 
 def editar_produto():
     produtos = listar_produtos()
@@ -92,8 +101,8 @@ def editar_produto():
                 produto_a_editar["status"] = int(status)
             
             
-                atualizar_produto(produto=produto_a_editar)
-                console.print("[green]Produto editado com sucesso![green]")
+            atualizar_produto(produto=produto_a_editar)
+            console.print("[green]Produto editado com sucesso![green]")
         else:
             console.print("[red]Índice inválido. Tente novamente.[/red]")
     except Exception as E:
@@ -217,8 +226,8 @@ def editar_entregador():
                 entregador_a_editar["senha"] = senha
             
         
-                atualizar_funcionario(entregador_a_editar)
-                console.print("[green]Entregador editado com sucesso![/green]")
+            atualizar_funcionario(entregador_a_editar)
+            console.print("[green]Entregador editado com sucesso![/green]")
         else:
             console.print("[red]Índice inválido. Tente novamente.[/red]")
     except Exception as E:
@@ -297,8 +306,8 @@ def editar_atendente():
             if senha:
                 atendente_a_editar["senha"] = senha
             
-                atualizar_funcionario(atendente_a_editar)
-                console.print("[green]Atendente editado com sucesso![/green]")
+            atualizar_funcionario(atendente_a_editar)
+            console.print("[green]Atendente editado com sucesso![/green]")
         else:
             console.print("[red]Índice inválido. Tente novamente.[/red]")
     except Exception as E:

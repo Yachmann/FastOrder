@@ -118,12 +118,15 @@ def NovoPedido() -> None:
         
 
         console.print("[yellow]Digite a forma de pagamento[/yellow]")
-        console.print("(Cartao [green]0[/green], Dinheiro [yellow]1[/yellow], Pix [red]2[/red] Voucher [blue]3[/blue]): ")
-        lista_pagamentos = ["0","1","2"]
+        console.print("(Cartao [green]0[/green], Dinheiro [yellow]1[/yellow], Pix [red]2[/red], Voucher [blue]3[/blue]): ")
+
+        lista_pagamentos = ["0", "1", "2", "3"]
         escolha_forma_pagamento = input()
+
         if escolha_forma_pagamento not in lista_pagamentos:
-            console.print("[red]Opçao Invalida ! [/red]")
+            console.print("[red]Opção inválida![/red]")
             return
+
         id_to_pagamento = {
             "1": "Dinheiro",
             "2": "Pix",
@@ -132,30 +135,33 @@ def NovoPedido() -> None:
             "5": "Cartao Credito"
         }
 
+        pagamento_debito_ou_credito = None
+
         if escolha_forma_pagamento == "0":
-            loop_debito_credito = True
-            while loop_debito_credito:
-                console.print("[yellow]Digite [green]0[/green] para Debito e [green]1[/green] para Credito [/yellow]")
+            while True:
+                console.print("[yellow]Digite [green]0[/green] para Débito e [green]1[/green] para Crédito[/yellow]")
                 escolha_debito_credito = input()
+
                 if escolha_debito_credito not in ["0", "1"]:
-                    console.print("[red]Opcao Invalida ! [/red]")
-                    return
-                pagamento_debito_ou_credito = None
+                    console.print("[red]Opção inválida![/red]")
+                    continue
+
                 if escolha_debito_credito == "0":
                     pagamento_debito_ou_credito = "4"
-                else: 
+                else:
                     pagamento_debito_ou_credito = "5"
 
                 pedido["forma_pagamento"] = id_to_pagamento[pagamento_debito_ou_credito]
-                loop_debito_credito = False
+                break
 
-        if not pagamento_debito_ou_credito:   
-            pedido["forma_pagamento"] = id_to_pagamento[escolha_forma_pagamento]
+        if pagamento_debito_ou_credito is None:
         
-
-        pedido_id = adicionar_pedido(pedido)
+            pedido["forma_pagamento"] = id_to_pagamento[escolha_forma_pagamento]
+            pedido_id = adicionar_pedido(pedido)
         inserir_itens_pedido(pedido_id, pedido["itens"])
+
         console.print("[green]Pedido criado com sucesso![/green]")
+
     except Exception as e:
         console.print(f"[red]Erro ao salvar pedido: {e}[/red]")
 
